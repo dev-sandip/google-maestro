@@ -13,6 +13,8 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
-    "convex": "catalog:"
+    "@clerk/backend": "^2.24.0",
+    "convex": "catalog:",
+    "svix": "^1.81.0"
   }
 }

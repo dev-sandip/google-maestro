@@ -1,3 +1,5 @@
+@import url("https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -15,6 +17,8 @@ body {
   @media (prefers-color-scheme: dark) {
     color-scheme: dark;
   }
+  transition: background-color var(--transition-colors),
+    color var(--transition-colors);
 }
 
 :root {
@@ -50,6 +54,7 @@ body {
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --transition-colors: 0.3s ease-in-out;
 }
 
 .dark {
@@ -131,4 +136,24 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+.grid-bg-light {
+  background-image: linear-gradient(
+      to right,
+      rgba(0, 0, 0, 0.05) 1px,
+      transparent 1px
+    ),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Dark Mode Grid */
+.grid-bg-dark {
+  background-image: linear-gradient(
+      to right,
+      rgba(255, 255, 255, 0.05) 1px,
+      transparent 1px
+    ),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
 }
