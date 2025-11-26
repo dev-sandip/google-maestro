@@ -1,6 +1,9 @@
 {
 	"$schema": "https://turbo.build/schema.json",
 	"ui": "tui",
+	"globalDependencies": [
+		".env"
+	],
 	"tasks": {
 		"build": {
 			"dependsOn": [
@@ -10,7 +13,10 @@
 				"$TURBO_DEFAULT$",
 				".env*"
 			],
-			"outputs": []
+			"outputs": [
+				".tanstack/start/**",
+				"!.tanstack/start/cache/**"
+			]
 		},
 		"lint": {
 			"dependsOn": [
