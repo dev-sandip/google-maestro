@@ -6,6 +6,11 @@ export default defineSchema({
 		name: v.string(),
 		// this the Clerk ID, stored in the subject JWT field
 		externalId: v.string(),
+		role: v.union(
+			v.literal("ADMIN"),
+			v.literal("USER"),
+			v.literal("SUPERADMIN")
+		)
 	}).index("byExternalId", ["externalId"]),
 	todos: defineTable({
 		text: v.string(),

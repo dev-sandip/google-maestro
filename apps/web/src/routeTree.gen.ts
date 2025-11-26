@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TodosRouteImport } from './routes/todos'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as UserRouteRouteImport } from './routes/user/route'
+import { Route as AdminRouteRouteImport } from './routes/admin/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as UserDashboardRouteImport } from './routes/user/dashboard'
 import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
@@ -33,34 +35,46 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UserRouteRoute = UserRouteRouteImport.update({
+  id: '/user',
+  path: '/user',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRouteRoute = AdminRouteRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UserDashboardRoute = UserDashboardRouteImport.update({
-  id: '/user/dashboard',
-  path: '/user/dashboard',
-  getParentRoute: () => rootRouteImport,
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => UserRouteRoute,
 } as any)
 const AdminDashboardRoute = AdminDashboardRouteImport.update({
-  id: '/admin/dashboard',
-  path: '/admin/dashboard',
-  getParentRoute: () => rootRouteImport,
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AdminRouteRoute,
 } as any)
 const UserRoundRoundIdRoute = UserRoundRoundIdRouteImport.update({
-  id: '/user/round/$roundId',
-  path: '/user/round/$roundId',
-  getParentRoute: () => rootRouteImport,
+  id: '/round/$roundId',
+  path: '/round/$roundId',
+  getParentRoute: () => UserRouteRoute,
 } as any)
 const AdminLeaderboardRoundIdRoute = AdminLeaderboardRoundIdRouteImport.update({
-  id: '/admin/leaderboard/$roundId',
-  path: '/admin/leaderboard/$roundId',
-  getParentRoute: () => rootRouteImport,
+  id: '/leaderboard/$roundId',
+  path: '/leaderboard/$roundId',
+  getParentRoute: () => AdminRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteRouteWithChildren
+  '/user': typeof UserRouteRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/todos': typeof TodosRoute
@@ -71,6 +85,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteRouteWithChildren
+  '/user': typeof UserRouteRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/todos': typeof TodosRoute
@@ -82,6 +98,8 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteRouteWithChildren
+  '/user': typeof UserRouteRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/todos': typeof TodosRoute
@@ -94,6 +112,8 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
+    | '/user'
     | '/dashboard'
     | '/login'
     | '/todos'
@@ -104,6 +124,8 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin'
+    | '/user'
     | '/dashboard'
     | '/login'
     | '/todos'
@@ -114,6 +136,8 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/admin'
+    | '/user'
     | '/dashboard'
     | '/login'
     | '/todos'
@@ -125,13 +149,11 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRouteRoute: typeof AdminRouteRouteWithChildren
+  UserRouteRoute: typeof UserRouteRouteWithChildren
   DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
   TodosRoute: typeof TodosRoute
-  AdminDashboardRoute: typeof AdminDashboardRoute
-  UserDashboardRoute: typeof UserDashboardRoute
-  AdminLeaderboardRoundIdRoute: typeof AdminLeaderboardRoundIdRoute
-  UserRoundRoundIdRoute: typeof UserRoundRoundIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -157,6 +179,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/user': {
+      id: '/user'
+      path: '/user'
+      fullPath: '/user'
+      preLoaderRoute: typeof UserRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -166,44 +202,70 @@ declare module '@tanstack/react-router' {
     }
     '/user/dashboard': {
       id: '/user/dashboard'
-      path: '/user/dashboard'
+      path: '/dashboard'
       fullPath: '/user/dashboard'
       preLoaderRoute: typeof UserDashboardRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof UserRouteRoute
     }
     '/admin/dashboard': {
       id: '/admin/dashboard'
-      path: '/admin/dashboard'
+      path: '/dashboard'
       fullPath: '/admin/dashboard'
       preLoaderRoute: typeof AdminDashboardRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRouteRoute
     }
     '/user/round/$roundId': {
       id: '/user/round/$roundId'
-      path: '/user/round/$roundId'
+      path: '/round/$roundId'
       fullPath: '/user/round/$roundId'
       preLoaderRoute: typeof UserRoundRoundIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof UserRouteRoute
     }
     '/admin/leaderboard/$roundId': {
       id: '/admin/leaderboard/$roundId'
-      path: '/admin/leaderboard/$roundId'
+      path: '/leaderboard/$roundId'
       fullPath: '/admin/leaderboard/$roundId'
       preLoaderRoute: typeof AdminLeaderboardRoundIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRouteRoute
     }
   }
 }
 
+interface AdminRouteRouteChildren {
+  AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminLeaderboardRoundIdRoute: typeof AdminLeaderboardRoundIdRoute
+}
+
+const AdminRouteRouteChildren: AdminRouteRouteChildren = {
+  AdminDashboardRoute: AdminDashboardRoute,
+  AdminLeaderboardRoundIdRoute: AdminLeaderboardRoundIdRoute,
+}
+
+const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
+  AdminRouteRouteChildren,
+)
+
+interface UserRouteRouteChildren {
+  UserDashboardRoute: typeof UserDashboardRoute
+  UserRoundRoundIdRoute: typeof UserRoundRoundIdRoute
+}
+
+const UserRouteRouteChildren: UserRouteRouteChildren = {
+  UserDashboardRoute: UserDashboardRoute,
+  UserRoundRoundIdRoute: UserRoundRoundIdRoute,
+}
+
+const UserRouteRouteWithChildren = UserRouteRoute._addFileChildren(
+  UserRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRouteRoute: AdminRouteRouteWithChildren,
+  UserRouteRoute: UserRouteRouteWithChildren,
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
   TodosRoute: TodosRoute,
-  AdminDashboardRoute: AdminDashboardRoute,
-  UserDashboardRoute: UserDashboardRoute,
-  AdminLeaderboardRoundIdRoute: AdminLeaderboardRoundIdRoute,
-  UserRoundRoundIdRoute: UserRoundRoundIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

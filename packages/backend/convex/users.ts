@@ -1,7 +1,9 @@
 import { UserJSON } from "@clerk/backend";
 import { v, Validator } from "convex/values";
 import { internalMutation, query, QueryCtx } from "./_generated/server";
+type UserRole = "USER" | "ADMIN" | "SUPERADMIN";
 
+const DEFAULT_ROLE: UserRole = "USER";
 export const current = query({
   args: {},
   handler: async (ctx) => {
@@ -15,6 +17,7 @@ export const upsertFromClerk = internalMutation({
     const userAttributes = {
       name: `${data.first_name} ${data.last_name}`,
       externalId: data.id,
+      role: DEFAULT_ROLE,
     };
 
     const user = await userByExternalId(ctx, data.id);

@@ -13,7 +13,6 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import type { ConvexReactClient } from "convex/react";
 import appCss from "../index.css?url";
 
-import Header from "@/components/header";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { ClerkProvider, useAuth } from "@clerk/tanstack-react-start";
 import { auth } from "@clerk/tanstack-react-start/server";
