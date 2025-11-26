@@ -11,7 +11,11 @@
 			],
 			"inputs": [
 				"$TURBO_DEFAULT$",
-				".env*"
+				".env*",
+				".env.production.local",
+				".env.local",
+				".env.production",
+				".env"
 			],
 			"outputs": [
 				".tanstack/start/**",
@@ -24,7 +28,9 @@
 				"VERCEL_GIT_COMMIT_SHA",
 				"VERCEL_GIT_COMMIT_REF",
 				"VITE_API_KEY",
-				"SECRET_KEY"
+				"SECRET_KEY",
+				"MY_API_URL",
+				"MY_API_KEY"
 			],
 			"passThroughEnv": [
 				"NODE_ENV",
