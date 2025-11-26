@@ -22,6 +22,7 @@
 				"!.tanstack/start/cache/**"
 			],
 			"env": [
+				"VITE_*",
 				"NODE_ENV",
 				"VERCEL_ENV",
 				"VERCEL_URL",
