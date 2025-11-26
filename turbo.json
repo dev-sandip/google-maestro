@@ -16,6 +16,25 @@
 			"outputs": [
 				".tanstack/start/**",
 				"!.tanstack/start/cache/**"
+			],
+			"env": [
+				"NODE_ENV",
+				"VERCEL_ENV",
+				"VERCEL_URL",
+				"VERCEL_GIT_COMMIT_SHA",
+				"VERCEL_GIT_COMMIT_REF",
+				"VITE_API_KEY",
+				"SECRET_KEY"
+			],
+			"passThroughEnv": [
+				"NODE_ENV",
+				"VERCEL_ENV",
+				"VERCEL_URL",
+				"VERCEL_GIT_COMMIT_SHA",
+				"VERCEL_GIT_COMMIT_REF",
+				"NITRO_PRESET",
+				"VITE_API_KEY",
+				"SECRET_KEY"
 			]
 		},
 		"lint": {
