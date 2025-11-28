@@ -1,11 +1,12 @@
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { Doc, Id } from '@google-maestro-new/backend/convex/_generated/dataModel';
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import {
   Calendar,
   Clock,
   Edit3,
+  FileWarning,
   Key,
   Plus,
   Radio,
@@ -43,6 +44,7 @@ export function RoundListView({ onCreate, onEdit, onLive, onDelete, onAddPartici
     navigator.clipboard.writeText(code);
     toast.success("Room code copied");
   };
+  const navigate = useNavigate();
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
@@ -155,6 +157,21 @@ export function RoundListView({ onCreate, onEdit, onLive, onDelete, onAddPartici
                         </Button>
                       }
                     />
+                  </TooltipProvider>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-zinc-400 hover:text-white hover:bg-white/5"
+                          onClick={() => navigate({ to: `/admin/violations/${round._id}` })}
+                        >
+                          <FileWarning size={16} />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent><p>View Users Violations</p></TooltipContent>
+                    </Tooltip>
                   </TooltipProvider>
                 </div>
 

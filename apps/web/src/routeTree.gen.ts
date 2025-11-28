@@ -18,6 +18,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as UserDashboardRouteImport } from './routes/user/dashboard'
 import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 import { Route as UserRoundRoundIdRouteImport } from './routes/user/round/$roundId'
+import { Route as AdminViolationsRoundIdRouteImport } from './routes/admin/violations.$roundId'
 import { Route as AdminLeaderboardRoundIdRouteImport } from './routes/admin/leaderboard.$roundId'
 
 const TodosRoute = TodosRouteImport.update({
@@ -65,6 +66,11 @@ const UserRoundRoundIdRoute = UserRoundRoundIdRouteImport.update({
   path: '/round/$roundId',
   getParentRoute: () => UserRouteRoute,
 } as any)
+const AdminViolationsRoundIdRoute = AdminViolationsRoundIdRouteImport.update({
+  id: '/violations/$roundId',
+  path: '/violations/$roundId',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const AdminLeaderboardRoundIdRoute = AdminLeaderboardRoundIdRouteImport.update({
   id: '/leaderboard/$roundId',
   path: '/leaderboard/$roundId',
@@ -81,6 +87,7 @@ export interface FileRoutesByFullPath {
   '/admin/dashboard': typeof AdminDashboardRoute
   '/user/dashboard': typeof UserDashboardRoute
   '/admin/leaderboard/$roundId': typeof AdminLeaderboardRoundIdRoute
+  '/admin/violations/$roundId': typeof AdminViolationsRoundIdRoute
   '/user/round/$roundId': typeof UserRoundRoundIdRoute
 }
 export interface FileRoutesByTo {
@@ -93,6 +100,7 @@ export interface FileRoutesByTo {
   '/admin/dashboard': typeof AdminDashboardRoute
   '/user/dashboard': typeof UserDashboardRoute
   '/admin/leaderboard/$roundId': typeof AdminLeaderboardRoundIdRoute
+  '/admin/violations/$roundId': typeof AdminViolationsRoundIdRoute
   '/user/round/$roundId': typeof UserRoundRoundIdRoute
 }
 export interface FileRoutesById {
@@ -106,6 +114,7 @@ export interface FileRoutesById {
   '/admin/dashboard': typeof AdminDashboardRoute
   '/user/dashboard': typeof UserDashboardRoute
   '/admin/leaderboard/$roundId': typeof AdminLeaderboardRoundIdRoute
+  '/admin/violations/$roundId': typeof AdminViolationsRoundIdRoute
   '/user/round/$roundId': typeof UserRoundRoundIdRoute
 }
 export interface FileRouteTypes {
@@ -120,6 +129,7 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/user/dashboard'
     | '/admin/leaderboard/$roundId'
+    | '/admin/violations/$roundId'
     | '/user/round/$roundId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -132,6 +142,7 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/user/dashboard'
     | '/admin/leaderboard/$roundId'
+    | '/admin/violations/$roundId'
     | '/user/round/$roundId'
   id:
     | '__root__'
@@ -144,6 +155,7 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/user/dashboard'
     | '/admin/leaderboard/$roundId'
+    | '/admin/violations/$roundId'
     | '/user/round/$roundId'
   fileRoutesById: FileRoutesById
 }
@@ -221,6 +233,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UserRoundRoundIdRouteImport
       parentRoute: typeof UserRouteRoute
     }
+    '/admin/violations/$roundId': {
+      id: '/admin/violations/$roundId'
+      path: '/violations/$roundId'
+      fullPath: '/admin/violations/$roundId'
+      preLoaderRoute: typeof AdminViolationsRoundIdRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/admin/leaderboard/$roundId': {
       id: '/admin/leaderboard/$roundId'
       path: '/leaderboard/$roundId'
@@ -234,11 +253,13 @@ declare module '@tanstack/react-router' {
 interface AdminRouteRouteChildren {
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminLeaderboardRoundIdRoute: typeof AdminLeaderboardRoundIdRoute
+  AdminViolationsRoundIdRoute: typeof AdminViolationsRoundIdRoute
 }
 
 const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminDashboardRoute: AdminDashboardRoute,
   AdminLeaderboardRoundIdRoute: AdminLeaderboardRoundIdRoute,
+  AdminViolationsRoundIdRoute: AdminViolationsRoundIdRoute,
 }
 
 const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
