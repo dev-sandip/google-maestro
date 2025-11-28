@@ -1,11 +1,17 @@
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { cn } from "@/lib/utils";
 import { useUser } from "@clerk/tanstack-react-start";
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@google-maestro-new/backend/convex/_generated/api";
+import type { Id } from "@google-maestro-new/backend/convex/_generated/dataModel";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Activity, Calendar, Terminal } from "lucide-react";
+import { useMutation } from "convex/react";
+import { Activity, Calendar, KeyRound, Plus, Terminal } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
+import { toast } from 'sonner';
 import { DashboardHeader } from "./header";
 import { RoundCard } from "./round-card";
 
@@ -13,25 +19,57 @@ type FilterType = 'ALL' | 'HISTORY' | 'UPCOMING';
 
 export const UserDashboard = () => {
   // Data Fetching
-  const roundsQuery = useSuspenseQuery(convexQuery(api.rounds.getAll, {}));
+  const userQuery = useSuspenseQuery(convexQuery(api.users.current, {}));
+  const convexUser = userQuery.data;
+  const roundsQuery = useSuspenseQuery(convexQuery(api.rounds.getRoundByParticipant, {
+    userId: convexUser?._id as Id<'users'>
+  }));
   const rounds = roundsQuery.data || [];
   const { user } = useUser();
 
   // State
   const [activeTab, setActiveTab] = useState<FilterType>('ALL');
+  const [roundCode, setRoundCode] = useState("");
+  const [isJoinDialogOpen, setIsJoinDialogOpen] = useState(false);
+
+  // Mutation
+  const joinRound = useMutation(api.rounds.addParticipant); // Assumption: You have this mutation
 
   // Constants
-  const duration = "10"; // Placeholder
+  const duration = "10";
   const today = new Date().toLocaleDateString("en-US", { weekday: 'long', month: 'long', day: 'numeric' });
 
   // Filtering Logic
   const filteredRounds = rounds.filter((round) => {
     if (activeTab === 'HISTORY') return round.status === 'COMPLETED';
     if (activeTab === 'UPCOMING') return round.status === 'UPCOMING';
-    return round.status !== 'LIVE'; // ALL = Upcoming + Completed (Live has its own section)
+    return round.status !== 'LIVE';
   });
 
   const liveRounds = rounds.filter(r => r.status === 'LIVE');
+
+  const handleJoinRound = async () => {
+    if (!roundCode || roundCode.length < 4) {
+      toast.error("Invalid access code.");
+      return;
+    }
+
+    try {
+      const data = await joinRound({ roomCode: roundCode, userId: convexUser?._id as Id<'users'> });
+      if (data.success) {
+        toast.success("Access granted. Protocol loaded.");
+        setIsJoinDialogOpen(false);
+        setRoundCode("");
+      } else {
+        toast.error(data.message);
+        setRoundCode("");
+      }
+
+    } catch (error) {
+      toast.error("Access denied.");
+      setRoundCode("");
+    }
+  };
 
   const TabButton = ({ tab, label }: { tab: FilterType, label: string }) => (
     <button
@@ -86,20 +124,57 @@ export const UserDashboard = () => {
             </motion.p>
           </div>
 
-          {/* Date Widget (Placeholder for future stats) */}
+          {/* Right Side: Date & Quick Join */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="hidden md:flex items-center gap-3 text-right"
+            className="flex items-center gap-6"
           >
-            <div className="flex flex-col">
-              <span className="text-xs font-mono text-zinc-600 uppercase tracking-widest">Current Date</span>
-              <span className="text-sm text-zinc-300">{today}</span>
+            {/* Date Widget */}
+            <div className="hidden md:flex items-center gap-3 text-right">
+              <div className="flex flex-col">
+                <span className="text-xs font-mono text-zinc-600 uppercase tracking-widest">Current Date</span>
+                <span className="text-sm text-zinc-300">{today}</span>
+              </div>
+              <div className="w-10 h-10 rounded bg-zinc-900 border border-white/5 flex items-center justify-center text-zinc-500">
+                <Calendar size={18} />
+              </div>
             </div>
-            <div className="w-10 h-10 rounded bg-zinc-900 border border-white/5 flex items-center justify-center text-zinc-500">
-              <Calendar size={18} />
-            </div>
+
+            {/* Quick Join Button (Desktop) */}
+            <Dialog open={isJoinDialogOpen} onOpenChange={setIsJoinDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-white text-black hover:bg-zinc-200 font-mono text-xs hidden md:flex">
+                  <KeyRound size={14} className="mr-2" /> Enter Code
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="bg-[#121214] border-white/10 text-white sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle className="font-display text-xl">Access Protocol</DialogTitle>
+                  <DialogDescription className="text-zinc-500">
+                    Enter the unique 6-character code provided by your administrator to join a private round.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="py-4">
+                  <div className="relative">
+                    <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={16} />
+                    <Input
+                      value={roundCode}
+                      onChange={(e) => setRoundCode(e.target.value.toUpperCase())}
+                      placeholder="e.g. ALPHA-9"
+                      className="pl-9 bg-black/50 border-white/10 text-white font-mono uppercase tracking-widest placeholder:normal-case placeholder:tracking-normal focus-visible:ring-orange-500/50"
+                      maxLength={10}
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button onClick={handleJoinRound} className="w-full bg-orange-600 hover:bg-orange-700 text-white">
+                    Initialize Link
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </motion.div>
         </div>
 
@@ -137,11 +212,25 @@ export const UserDashboard = () => {
 
         {/* Filtered Rounds Section */}
         <div className="pb-10 min-h-[400px]">
-          {/* Tabs */}
-          <div className="flex items-center gap-6 mb-8 border-b border-white/5 overflow-x-auto no-scrollbar">
-            <TabButton tab="ALL" label="All Rounds" />
-            <TabButton tab="UPCOMING" label="Upcoming" />
-            <TabButton tab="HISTORY" label="History" />
+          <div className="flex items-center justify-between mb-8 border-b border-white/5 pb-0">
+            {/* Tabs */}
+            <div className="flex items-center gap-6 overflow-x-auto no-scrollbar">
+              <TabButton tab="ALL" label="All Rounds" />
+              <TabButton tab="UPCOMING" label="Upcoming" />
+              <TabButton tab="HISTORY" label="History" />
+            </div>
+
+            {/* Mobile Join Button */}
+            <div className="md:hidden pb-2">
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-white/10 text-xs font-mono"
+                onClick={() => setIsJoinDialogOpen(true)}
+              >
+                <Plus size={14} className="mr-1" /> Join
+              </Button>
+            </div>
           </div>
 
           <motion.div
@@ -154,14 +243,26 @@ export const UserDashboard = () => {
               ))}
             </AnimatePresence>
 
-            {/* Empty State for Filters */}
+            {/* Empty State / Join Prompt */}
             {filteredRounds.length === 0 && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="col-span-full py-24 text-center border border-white/5 rounded-xl bg-[#121214]"
+                className="col-span-full py-24 flex flex-col items-center justify-center border border-white/5 rounded-xl bg-[#121214]"
               >
-                <p className="text-zinc-500 font-mono text-sm">No records found in this sector.</p>
+                <div className="w-16 h-16 bg-zinc-900 rounded-full flex items-center justify-center mb-4">
+                  <KeyRound className="text-zinc-500" size={32} />
+                </div>
+                <h3 className="text-lg font-medium text-white mb-2">No Rounds Found</h3>
+                <p className="text-zinc-500 font-mono text-sm mb-6 max-w-sm text-center">
+                  No rounds found in this sector. Do you have a classified access code?
+                </p>
+                <Button
+                  onClick={() => setIsJoinDialogOpen(true)}
+                  className="bg-white text-black hover:bg-zinc-200"
+                >
+                  Enter Access Code
+                </Button>
               </motion.div>
             )}
           </motion.div>

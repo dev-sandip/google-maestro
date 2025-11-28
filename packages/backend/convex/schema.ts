@@ -4,6 +4,7 @@ import { v } from "convex/values";
 export default defineSchema({
 	users: defineTable({
 		name: v.string(),
+		email: v.optional(v.string()),
 		// this the Clerk ID, stored in the subject JWT field
 		externalId: v.string(),
 		role: v.union(
@@ -20,13 +21,14 @@ export default defineSchema({
 		title: v.string(),
 		description: v.string(),
 		startAt: v.string(),
+		roomCode: v.string(),
 		status: v.union(
 			v.literal("LIVE"),
 			v.literal("UPCOMING"),
 			v.literal("COMPLETED")
 		),
-		participants: v.optional(v.array(v.id("user"))),
-	}),
+		participants: v.optional(v.array(v.id("users"))),
+	}).index("by_roomCode", ["roomCode"]),
 	questions: defineTable({
 		question: v.string(),
 		answer: v.string(),
@@ -84,5 +86,16 @@ export default defineSchema({
 			searchField: "userId",
 			filterFields: ["roundId"],
 		}),
-
+	allowedUsers: defineTable({
+		emails: v.array(v.string()),
+		roundId: v.id("rounds"),
+	}).index("by_round", ["roundId"]),
+	violations: defineTable({
+		userId: v.id("users"),
+		type: v.string(),
+		timestamp: v.string(),
+		userAgent: v.optional(v.string()),
+		url: v.optional(v.string()),
+	}).index("by_userId", ["userId"])
+		.index("by_timestamp", ["timestamp"]),
 });

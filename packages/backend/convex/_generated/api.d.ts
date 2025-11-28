@@ -9,6 +9,7 @@
  */
 
 import type * as actions_judgeSubmission from "../actions/judgeSubmission.js";
+import type * as allowed from "../allowed.js";
 import type * as healthCheck from "../healthCheck.js";
 import type * as http from "../http.js";
 import type * as internals from "../internals.js";
@@ -19,6 +20,7 @@ import type * as rounds from "../rounds.js";
 import type * as submission from "../submission.js";
 import type * as todos from "../todos.js";
 import type * as users from "../users.js";
+import type * as violations from "../violations.js";
 
 import type {
   ApiFromModules,
@@ -28,6 +30,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   "actions/judgeSubmission": typeof actions_judgeSubmission;
+  allowed: typeof allowed;
   healthCheck: typeof healthCheck;
   http: typeof http;
   internals: typeof internals;
@@ -38,6 +41,7 @@ declare const fullApi: ApiFromModules<{
   submission: typeof submission;
   todos: typeof todos;
   users: typeof users;
+  violations: typeof violations;
 }>;
 
 /**

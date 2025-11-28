@@ -2,6 +2,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { RoundStatus } from "@/types";
+import type { Id } from "@google-maestro-new/backend/convex/_generated/dataModel";
 import { useNavigate } from "@tanstack/react-router";
 import { CheckCircle2, ChevronRight, Clock, Lock, PlayCircle, Trophy } from 'lucide-react';
 import { motion } from 'motion/react';
@@ -17,6 +18,7 @@ interface RoundCardProps {
   status: RoundStatus;
   participants?: string[];
   maxScore?: number;
+  participants?: Id<"users">[] | undefined;
 }
 
 export function RoundCard({ _id, title, startAt, duration, status, participants, maxScore }: RoundCardProps) {
@@ -109,7 +111,7 @@ export function RoundCard({ _id, title, startAt, duration, status, participants,
         <div className="flex items-center gap-2">
           {/* Actual Avatar Stack */}
           <div className="flex -space-x-2 overflow-hidden pl-1">
-            {[...Array(3)].map((_, i) => (
+            {participants?.map((_, i) => (
               <Avatar key={i} className="inline-block h-6 w-6 ring-2 ring-[#121214]">
                 {/* Using random avatar service for demo */}
                 <AvatarImage src={`https://i.pravatar.cc/150?u=${i + 1}`} />

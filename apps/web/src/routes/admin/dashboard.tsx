@@ -3,6 +3,8 @@ import { LiveControlView } from '@/components/admin/live-control';
 import { RoundCreateView } from '@/components/admin/new-round';
 import { RoundEditorView } from '@/components/admin/round-editor';
 import { RoundListView } from '@/components/admin/round-view-list';
+import { ParticipantsUploadView } from '@/components/admin/users/upload';
+import { ParticipantsListView } from '@/components/admin/users/view';
 import type { ViewState } from '@/types';
 import { convexQuery } from '@convex-dev/react-query';
 import { api } from '@google-maestro-new/backend/convex/_generated/api';
@@ -25,75 +27,106 @@ function RouteComponent() {
   const deleteRoundMutation = useMutation(api.rounds.deleteRound);
 
   const [view, setView] = useState<ViewState>('LIST');
-  const [activeRoundId, setActiveRoundId] = useState<string>("");
+  const [activeRoundId, setActiveRoundId] = useState<Id<"rounds"> | null>(null);
+
+  // --- HANDLERS ---
+
+  const handleCreate = () => {
+    setActiveRoundId(null);
+    setView('CREATE_ROUND');
+  };
 
   const handleEdit = (id: Id<"rounds">) => {
     setActiveRoundId(id);
     setView('EDIT_ROUND');
   };
 
-  const handleDelete = (id: Id<"rounds">) => {
+  const handleLive = (id: Id<"rounds">) => {
+    setActiveRoundId(id);
+    setView('LIVE_CONTROL');
+  };
+
+  const handleManageParticipants = (id: Id<"rounds">) => {
+    setActiveRoundId(id);
+    setView('PARTICIPANTS');
+  };
+
+  const handleDelete = async (id: Id<"rounds">) => {
     try {
-      deleteRoundMutation({ id });
+      await deleteRoundMutation({ id });
       toast.success("Round deleted successfully");
-    }
-    catch (error) {
+    } catch (error) {
       toast.error("Failed to delete round");
     }
   };
 
-  const handleLive = (id: Id<"rounds">) => {
-    console.log("edit id is ", id)
-    setActiveRoundId(id);
-    setView('LIVE_CONTROL');
-  };
-  return <div className="min-h-screen bg-[#09090B] text-zinc-100 font-sans selection:bg-orange-500/30">
-    <div className="fixed inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
+  return (
+    <div className="min-h-screen bg-[#09090B] text-zinc-100 font-sans selection:bg-orange-500/30">
+      <div className="fixed inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
 
-    <AdminHeader />
+      <AdminHeader />
 
-    <main className="container mx-auto px-4 md:px-6 py-8 relative z-10">
-      <AnimatePresence mode="wait">
+      <main className="container mx-auto px-4 md:px-6 py-8 relative z-10">
+        <AnimatePresence mode="wait">
 
-        {view === 'LIST' && (
-          <RoundListView
-            rounds={rounds}
-            key="list"
-            onCreate={() => setView('CREATE_ROUND')}
-            onEdit={(id) => handleEdit(id)}
-            onLive={(id) => handleLive(id)}
-            onDelete={(id) => handleDelete(id)}
-          />
-        )}
+          {view === 'LIST' && (
+            <RoundListView
+              rounds={rounds || []}
+              key="list"
+              onCreate={handleCreate}
+              onEdit={handleEdit}
+              onLive={handleLive}
+              onDelete={handleDelete}
+              onAddParticipants={handleManageParticipants}
+            />
+          )}
 
-        {(view === 'EDIT_ROUND') && (
-          <RoundEditorView
-            key="editor"
-            roundId={activeRoundId as Id<"rounds">}
-            onBack={() => setView('LIST')}
-          />
-        )}
-        {
-          view === "CREATE_ROUND" && (
+          {view === "CREATE_ROUND" && (
             <RoundCreateView
+              key="create"
               onBack={() => setView('LIST')}
               onSuccess={(id) => {
-                setActiveRoundId(id);
+                setActiveRoundId(id as Id<"rounds">);
                 setView('EDIT_ROUND');
               }}
             />
-          )
-        }
+          )}
 
-        {view === 'LIVE_CONTROL' && (
-          <LiveControlView
-            key="live"
-            roundId={activeRoundId}
-            onExit={() => setView('LIST')}
-          />
-        )}
+          {view === 'EDIT_ROUND' && activeRoundId && (
+            <RoundEditorView
+              key="editor"
+              roundId={activeRoundId}
+              onBack={() => setView('LIST')}
+            />
+          )}
 
-      </AnimatePresence>
-    </main>
-  </div>
+          {view === 'LIVE_CONTROL' && activeRoundId && (
+            <LiveControlView
+              key="live"
+              roundId={activeRoundId}
+              onExit={() => setView('LIST')}
+            />
+          )}
+
+          {view === 'PARTICIPANTS' && activeRoundId && (
+            <ParticipantsListView
+              key="participants-list"
+              roundId={activeRoundId}
+              onBack={() => setView('LIST')}
+              onImport={() => setView('IMPORT_PARTICIPANTS')}
+            />
+          )}
+
+          {view === 'IMPORT_PARTICIPANTS' && activeRoundId && (
+            <ParticipantsUploadView
+              key="participants-upload"
+              roundId={activeRoundId}
+              onBack={() => setView('PARTICIPANTS')} // Returns to list to verify import
+            />
+          )}
+
+        </AnimatePresence>
+      </main>
+    </div>
+  )
 }

@@ -167,7 +167,7 @@ export default function LoginPage() {
             </form.Subscribe>
 
           </form> */}
-          <SignIn signInUrl='/login' />
+          <SignIn afterSignOutUrl={"/"} signInUrl='/login' />
 
           <div className="mt-8 pt-8 border-t border-black/5 dark:border-white/5 text-center">
             <p className="text-zinc-500 dark:text-[#52525B] text-xs">

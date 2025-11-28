@@ -13,13 +13,23 @@ export const current = query({
 
 export const upsertFromClerk = internalMutation({
   args: { data: v.any() as Validator<UserJSON> }, // no runtime validation, trust Clerk
-  async handler(ctx, { data }) {
-    const userAttributes = {
-      name: `${data.first_name} ${data.last_name}`,
-      externalId: data.id,
-      role: DEFAULT_ROLE,
-    };
 
+  async handler(ctx, { data }) {
+    let userAttributes;
+    if (data.email_addresses.length === 0) {
+      userAttributes = {
+        name: `${data.first_name} ${data.last_name}`,
+        externalId: data.id,
+        role: DEFAULT_ROLE,
+      };
+    } else {
+      userAttributes = {
+        name: `${data.first_name} ${data.last_name}`,
+        email: data.email_addresses[0].email_address,
+        externalId: data.id,
+        role: DEFAULT_ROLE,
+      };
+    }
     const user = await userByExternalId(ctx, data.id);
     if (user === null) {
       await ctx.db.insert("users", userAttributes);

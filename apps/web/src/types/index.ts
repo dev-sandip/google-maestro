@@ -1,5 +1,5 @@
 export type RoundStatus = 'LIVE' | 'UPCOMING' | 'COMPLETED';
-export type ViewState = 'LIST' | 'CREATE_ROUND' | 'EDIT_ROUND' | 'LIVE_CONTROL';
+export type ViewState = 'LIST' | 'CREATE_ROUND' | 'EDIT_ROUND' | 'LIVE_CONTROL' | 'IMPORT_PARTICIPANTS' | 'PARTICIPANTS';
 export interface UserData {
   id: string;
   name: string;
