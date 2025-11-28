@@ -92,10 +92,12 @@ export default defineSchema({
 	}).index("by_round", ["roundId"]),
 	violations: defineTable({
 		userId: v.id("users"),
+		roundId: v.id("rounds"),
 		type: v.string(),
 		timestamp: v.string(),
 		userAgent: v.optional(v.string()),
 		url: v.optional(v.string()),
 	}).index("by_userId", ["userId"])
-		.index("by_timestamp", ["timestamp"]),
+		.index("by_timestamp", ["timestamp"])
+		.index("by_round", ["roundId"]),
 });

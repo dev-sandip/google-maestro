@@ -75,7 +75,7 @@ export const addParticipant = mutation({
     if (!user.email) {
       return { success: false, message: "User has no email" };
     }
-    console.log(roomCode);
+
     const round = await ctx.db
       .query("rounds")
       .filter((q) => q.eq(q.field("roomCode"), roomCode))
@@ -92,12 +92,12 @@ export const addParticipant = mutation({
       .query("allowedUsers")
       .withIndex("by_round", (q) => q.eq("roundId", round._id))
       .first();
-
-    if (allowedList && !allowedList.emails.includes(user.email)) {
-      return {
-        success: false,
-        message: "You're not on the guest list. Ask the host to invite you.",
-      };
+    const doesEmailExist = allowedList?.emails.includes(user.email);
+    if (!allowedList) {
+      return { success: false, message: "Currently no guest list is set for this round" }
+    }
+    if (!allowedList.emails.includes(user.email)) {
+      return { success: false, message: "You're not on the guest list. Ask the host to invite you." };
     }
 
     await ctx.db.patch(round._id, {

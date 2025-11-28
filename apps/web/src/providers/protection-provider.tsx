@@ -1,3 +1,6 @@
+import { api } from '@google-maestro-new/backend/convex/_generated/api';
+import type { Id } from '@google-maestro-new/backend/convex/_generated/dataModel';
+import { useMutation, useQuery } from 'convex/react';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -7,8 +10,8 @@ interface Violation {
   timestamp: string;
   userAgent?: string;
   url?: string;
-  userId?: string;
-  roundId?: string;
+  userId: Id<'users'>;
+  roundId: Id<'rounds'>;
 }
 
 interface ProtectionContextType {
@@ -20,9 +23,7 @@ interface ProtectionContextType {
 
 interface ProtectionProviderProps {
   children: React.ReactNode;
-  userId?: string;
-  roundId?: string;
-  gameId?: string;
+  roundId: Id<'rounds'>;
   onError?: (error: Error) => void;
   autoSync?: boolean;
   violationThreshold?: number; // optional: auto-block after X violations
@@ -40,7 +41,6 @@ export const useProtection = (): ProtectionContextType => {
 
 export const ProtectionProvider = ({
   children,
-  userId,
   roundId,
   onError,
   autoSync = true,
@@ -49,12 +49,26 @@ export const ProtectionProvider = ({
   const [violations, setViolations] = useState<Violation[]>([]);
   const [isBlocked, setIsBlocked] = useState<boolean>(false);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
-
+  const user = useQuery(api.users.current);
+  const voilationMutation = useMutation(api.violations.createViolation);
   // Placeholder – replace with your real Convex mutation
+
   const saveViolationToDatabase = async (violation: Violation) => {
+    console.log("User Id", user?._id)
+    console.log("Round Id", violation.roundId)
     if (!autoSync) return;
     try {
       setIsSyncing(true);
+      console.log("User Id", user?._id)
+      console.log("Round Id", violation.roundId)
+      voilationMutation({
+        type: violation.type,
+        timestamp: violation.timestamp,
+        userAgent: violation.userAgent as string,
+        url: violation.url as string,
+        userId: user?._id as Id<"users">,
+        roundId: violation.roundId as Id<"rounds">,
+      });
       // await convex.mutation('violations:insert', violation);
       console.log('Violation saved:', violation.type);
     } catch (error) {
@@ -72,8 +86,8 @@ export const ProtectionProvider = ({
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent,
       url: window.location.href,
-      userId: userId || 'anonymous',
-      roundId: roundId || '',
+      userId: user?._id as Id<'users'>,
+      roundId: roundId as Id<'rounds'>,
     };
 
     setViolations(prev => {

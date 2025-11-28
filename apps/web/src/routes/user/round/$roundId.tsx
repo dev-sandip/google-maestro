@@ -5,7 +5,6 @@ import { api } from "@google-maestro-new/backend/convex/_generated/api";
 import type { Id } from "@google-maestro-new/backend/convex/_generated/dataModel";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "convex/react";
 
 export const Route = createFileRoute("/user/round/$roundId")({
   component: RouteComponent,
@@ -18,10 +17,9 @@ function RouteComponent() {
       roundId: roundId as Id<"rounds">,
     })
   );
-  const user = useQuery(api.users.current);
   const questions = questionQuery.data;
   return (
-    <ProtectionProvider roundId={roundId} userId={user?._id}>
+    <ProtectionProvider roundId={roundId as Id<'rounds'>} >
       <RoundPage questions={questions} />
     </ProtectionProvider>
   );

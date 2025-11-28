@@ -164,7 +164,7 @@ export const UserDashboard = () => {
                       onChange={(e) => setRoundCode(e.target.value.toUpperCase())}
                       placeholder="e.g. ALPHA-9"
                       className="pl-9 bg-black/50 border-white/10 text-white font-mono uppercase tracking-widest placeholder:normal-case placeholder:tracking-normal focus-visible:ring-orange-500/50"
-                      maxLength={10}
+                      maxLength={25}
                     />
                   </div>
                 </div>
